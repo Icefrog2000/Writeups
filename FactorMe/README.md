@@ -63,8 +63,8 @@ Nó chọn ngẫu nhiên `n_primes` số nguyên tố, mỗi số nguyên tố n
 Server trả về tích của các số nguyên tố (N), giá trị hàm phi N (phiN) và yêu cầu bạn đoán xem nó đã dùng bao nhiều số nguyên tố. Đoán đúng 60 lần thì có flag
 
 Gọi min là giá trị bé nhất của 1 số nguyên tố với n_bits, tương tự bới max
-Suy ra min = 2^(n_bits - 1)
-       max = 2n_bits - 1
+
+Suy ra min = 2^(n_bits - 1), max = 2n_bits - 1
         
 Ý tưởng đầu tiên là tìm số `n_bits` và `n_primes` sao cho:
 + min^n_primes < N < max^n_primes
