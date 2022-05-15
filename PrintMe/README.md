@@ -87,7 +87,7 @@ void secure(char **param_1) {
 Bài này mình cũng lúng túng 1 tiếng tìm đủ kiểu bypass, nhưng rồi nhận ra nó thiếu 1 dấu đó là `|`
 Nếu nhập `printme/printme|ls` thì ls sẽ được thực thi
 
-Trong kết quả trả về của `ls` thì có thư mực tên là secret, trong đó có flag
+Trong kết quả trả về của `ls` thì có thư mực tên là secret, trong đó có flag.
 Điền `secret\flag.txt` để lấy cờ.
 
-Vâng file Dockerfile đã lừa các b
+Vâng file Dockerfile đã lừa các bạn
