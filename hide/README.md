@@ -31,3 +31,34 @@ Dựa vào `strace` và `vmmap` ta thấy địa chỉ 0x400000 đáng nghi, vì
 Ok game là dễ, dump thôi: `dump dump_file 0x400000 0x4ca000`
 
 Ta được cái dump_file, vứt nó vào IDA để phân tích
+Lần theo hàm start ta tìm được main ở địa chỉ `0000000000401D95`
+
+![image](https://user-images.githubusercontent.com/54637811/168480592-2fc87b01-02c2-45a4-816c-86eb63b28d0b.png)
+
+Có vẻ ngon rồi, nhìn sơ qua thì ta đoán là hàm `sub_415260` là `printf`, hàm `sub_41CB90` là `fgets`, hàm `sub_401180` là `strlen`
+
+Hàm `sub_403038` mã hoá cái gì đó nhưng không động chạm gì tới input của mình, và tham số thứ 3 là 256
+Hàm `sub_405ADD` thì thú vị hơn
+
+![image](https://user-images.githubusercontent.com/54637811/168480785-a14944f3-0608-4fd7-ad2e-5379a81d5451.png)
+
+Chắc chắn là mã hoá AES rồi, suy ra luôn `sub_403038` là hàm mở rộng khoá, với khoá là
+`[0x61, 0x3e, 0xea, 0x00, 0x01, 0xc, 0x79, 0xee, 0xfb, 0x73, 0xae, 0xf0, 0x85, 0x7d, 0x77, 0x81, 0x1f, 0x00, 0x00, 0x7, 0x3b, 0x61, 0x8, 0xd7, 0x2d, 0x98, 0x10, 0xa3, 0x9, 0x14, 0xdf, 0xf4]`
+
+Nhìn kỹ thì thấy nó chỉ có mã hoá 16 byte, đúng bằng 1 block, và có vẻ như không làm gì đặc biệt nên khả năng mode của nó là ECB
+
+Hàm `sub_4010E0` có vẻ là `memcmp`, nên có cipher, có key, biết thuật toán mã hoá, lấy flag thôi
+
+```python
+from Crypto.Cipher import AES
+
+key = [0x61, 0x3e, 0xea, 0x00, 0x01, 0xc, 0x79, 0xee, 0xfb, 0x73, 0xae, 0xf0, 0x85, 0x7d, 0x77, 0x81, 0x1f, 0x00, 0x00, 0x7, 0x3b, 0x61, 0x8, 0xd7, 0x2d, 0x98, 0x10, 0xa3, 0x9, 0x14, 0xdf, 0xf4]
+encrypted_data2 = [0x6, 0xfd, 0x75, 0xec, 0xe2, 0xca, 0x9a, 0x3a, 0x37, 0xc8, 0x45, 0x44, 0x40, 0xdb, 0x30, 0x6e]
+
+key = bytes(key)
+cipher = AES.new(key, AES.MODE_ECB)
+plaintext = cipher.decrypt(bytes(encrypted_data2))
+print(plaintext)
+```
+
+![image](https://user-images.githubusercontent.com/54637811/168481059-0023ff50-6275-4e92-8a6a-f00eba5d7108.png)
