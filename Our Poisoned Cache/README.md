@@ -83,3 +83,4 @@ Như vậy lần malloc 0x40, free nó thì `*local_10 != 0`, không thỏa mãn
 r.sendlineafter(b'Where:\n', hex(heap+0xa8).encode())
 r.sendlineafter(b'What:\n', hex(heap+0x2a0).encode())
 ```
+Ok các bước tiếp theo sẽ là ghi đè setvbuf@got thành puts@plt+6, ghi đè `_IO_2_1_stderr_` ở trên bss để nó trỏ tới chỗ nào đó có địa chỉ libc, thì chúng ta leak libc base. Dứt điểm bằng cách gh
