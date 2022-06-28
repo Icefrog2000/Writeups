@@ -1,0 +1,1 @@
+My h4ck3r friend said that my program can be exploited, something something related to poisoning. I don't understack this hacking's lingo. Can you exploit this and read my file flag.txt?
