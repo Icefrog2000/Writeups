@@ -1,0 +1,1 @@
+Good Luck. Flag format: FPTUHacking{text_you_found}
